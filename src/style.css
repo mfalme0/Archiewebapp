@@ -1,0 +1,42 @@
+/* styles.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  .form-container {
+    margin-top: 20px; /* Adjust the margin as needed */
+  }
+  
+  .table-container {
+    margin-top: 20px; /* Adjust the margin as needed */
+  }
+  
+  /* Add additional styling as needed */
+  .btn-primary {
+    color: #fff !important;
+    background-color: #ff6602 !important;
+    border-color: #757575 !important;
+  }
+  .btn-primary:hover {
+    color: #fff !important;
+    background-color: #424242 !important;
+    scale: 1.3;
+    border-color: #ff6602 !important;
+  }
+  .btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }  
+  .modal-content{
+    display: flex;
+  }
+  .modal-body form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
