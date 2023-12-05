@@ -40,3 +40,38 @@
     flex-direction: column;
     align-items: center;
   }
+  /* LargeItemInput.css */
+
+/* Center the main container */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Set height to 100% of the viewport height for vertical centering */
+}
+
+/* Style the input and button sections */
+div > div {
+  margin-bottom: 20px; /* Add some space between sections */
+}
+
+/* Style the table section */
+table {
+  width: 50%; /* Adjust the width as needed */
+  border-collapse: collapse;
+  margin-top: 20px; /* Add some space between sections */
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th, td {
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}

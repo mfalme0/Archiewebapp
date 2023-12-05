@@ -2,6 +2,8 @@ import React from "react";
 import Home from "./home"
 import Home2 from "./home2"
 import Admin from "./admin";
+import Upload from "./upload"
+import Add from "./add"
 import {
     BrowserRouter as Router,
     Route,
@@ -19,6 +21,8 @@ function App(){
                 <Route path="/h" element={<Home/>} />
                 <Route path ='/'element={<Home2/>} />
                 <Route path ='/a' element={<Admin/>}/>
+                <Route path ='/u' element={<Upload/>}/>
+                <Route path ='/add' element={<Add/>}/>
             </Routes>
         </Router>
     )

@@ -1,12 +1,54 @@
-import React, { useState } from 'react';
-import { Container, Row, Table, Button } from 'react-bootstrap';
-import { CiSearch } from 'react-icons/ci';
-import { CiServer } from "react-icons/ci";
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Table, Button, Modal } from 'react-bootstrap';
+import { CiSearch, CiServer } from 'react-icons/ci';
+import { CiShoppingTag } from 'react-icons/ci';
 
 function Lookup() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
+
+  
+  const[formdata, setformdata] = useState({
+    
+    instanceId:'',
+    
+
+  });
+
+  const handlekuchange =(e) =>{
+    const {name, value } =e.target;
+    setformdata({...formdata, [name]:value});
+  }
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (selectedItem && selectedItem.Id) {
+        const response = await fetch(`/update/${selectedItem.Id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            instanceId: formdata.instanceId, // Use the correct field name from your backend
+            // Add other fields you want to update
+          }),
+        });
+
+        if (response.ok) {
+          console.log("Data updated successfully");
+          setShowModal(false);
+        } else {
+          console.log("Error updating data");
+        }
+      }
+    } catch (error) {
+      console.log("Error: " + error);
+    }
+  };
 
   const handleSearch = async (event) => {
     event.preventDefault();
@@ -21,27 +63,74 @@ function Lookup() {
     }
   };
 
+  const handleTakeOut = (item) => {
+    setShowModal(true);
+    setSelectedItem(item);
+    if (item && item.Id){
+      setformdata((prevFormdata) => ({
+        ...prevFormdata,
+        document:item.Id,
+      }));
+    }
+  };
+
+  useEffect(()=>{
+    const updatestate = async () => {
+      try{
+        if (selectedItem && selectedItem.Id){
+        const response  = await fetch(`/take/${selectedItem.Id}`,{
+          method:'PUT',
+        });
+        if (response.ok){
+          console.log('iko fiti');
+        
+        }else{
+          console.log('acha ufala buda');
+        }}
+      }
+      catch (err){
+        console.log('rada mase' + err);
+      }
+    };  if (selectedItem ){
+    updatestate(); 
+     
+  }
+  }, [selectedItem]);
+
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedItem(null);
+  };
+
   const renderTableRows = () => {
     return searchResults.map((result) => (
-        <tr key={result.instanceid}>
-          <td>{result.instanceid}</td>
-          <td>{result.Id}</td>
-          <td>{result.CustomerId}</td>
-          <td>{result.Name}</td>
-          <td>{result.loanAmount}</td>
-          <td>{result.state}</td>
-          <td>{result.availability}</td>
-          <Button variant='primary'>
-                    Take out <CiServer />
-                  </Button>
-        </tr>
-      ))
-    
+      <tr key={result.instanceid}>
+        <td>{result.instanceid}</td>
+        <td>{result.Id}</td>
+        <td>{result.CustomerId}</td>
+        <td>{result.Name}</td>
+        <td>{result.loanAmount}</td>
+        <td>{result.state}</td>
+        <td>{result.availability}</td>
+        <td>
+     
+          <Button variant='primary' onClick={() => handleTakeOut(result)}>
+            Take out <CiServer />
+          </Button>
+     
+
+          
+        </td>
+      </tr>
+    ));
   };
 
   return (
     <div>
       <Container>
+        {/* ... (your existing code) */}
+        <h1>Loan Form Search</h1>
         <Row className="justify-content-center">
           <form onSubmit={handleSearch}>
             <label>Enter Customer ID </label>
@@ -50,8 +139,7 @@ function Lookup() {
               type="text"
               name="search"
               placeholder="..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
             />
             <br />
             <Button variant="primary" type="submit">
@@ -72,7 +160,7 @@ function Lookup() {
                   <th>Loan Amount</th>
                   <th>State</th>
                   <th>Availability</th>
-                
+                  <th>Request</th>
                 </tr>
               </thead>
               <tbody>{renderTableRows()}</tbody>
@@ -81,10 +169,68 @@ function Lookup() {
             <p>No results found.</p>
           )}
         </Row>
+
+        {/* Modal for displaying details */}
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedItem && (
+              <div>
+                <Row>
+                <p>Selected Item Details:</p>
+                <ul>
+                  <li>Archive number: {selectedItem.instanceid}</li>
+                  <li>Customer name: {selectedItem.Name}</li>
+                  <li>Id: {selectedItem.Id}</li>
+                  <li>CustomerId: {selectedItem.CustomerId}</li>
+                  {/* Include other details as needed */}
+                </ul>
+                
+                </Row>
+                <Row>
+                <form onSubmit={handlesubmit} >
+                <p> please enter the following information and management with get back to you</p>
+
+                <label>Loan ID</label>
+
+                <input 
+                placeholder={selectedItem.Id} 
+                name="document"
+                value={selectedItem.Id} 
+                onChange={handlekuchange}
+                readOnly
+                 />
+
+                <label>Archive Number</label>
+
+                <input 
+                type="text"
+                name="instanceId"
+                placeholder="178098"
+                onChange={handlekuchange}
+                required
+                />
+                <br/>
+                <Button type='submit'variant='primary'>
+                  Modify
+                </Button>
+
+            </form>
+                </Row>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );
 }
 
 export default Lookup;
-

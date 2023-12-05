@@ -1,7 +1,10 @@
 const express = require ("express");
 const cors = require ("cors");
+const multer = require('multer');
 const mysql = require ("mysql2");
 const app = express();
+const xlsx = require('xlsx')
+const ExcelJS = require('exceljs');
 const bodyParser = require ("body-parser");
 const port = 8080
 
@@ -12,6 +15,9 @@ const db = mysql.createConnection({
   database: "books",
 });
 app.use(bodyParser.json());
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 db.connect((err) => {
   if (err) {
@@ -130,6 +136,98 @@ app.get('/everything', (req, res) => {
       }
     });
   });
+
+  app.post('/weka', upload.single('file'), (req, res) => {
+    try {
+      const buffer = req.file.buffer;
+      const workbook = xlsx.read(buffer, { type: 'buffer' });
+  
+      if (workbook && workbook.SheetNames && workbook.SheetNames.length > 0) {
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const data = xlsx.utils.sheet_to_json(sheet);
+  
+        res.json({ data });
+      } else {
+        throw new Error('Invalid Excel file format.');
+      }
+    } catch (error) {
+      console.error('Error processing Excel file:', error.message);
+      res.status(500).send('Error processing Excel file');
+    }
+  });
+
+  app.post('/ongeza', (req, res) => {
+    const dataForDatabase = req.body;
+  
+    // Assuming 'loanslist' is your table name
+    const insertQuery = 'INSERT INTO loanslists (instanceId, Branch, Id, CustomerID, legalId, Name, loanAmount, Disbursmentdate, Matudate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  
+    const values = [
+      dataForDatabase.instanceId,
+      dataForDatabase.Branch,
+      dataForDatabase.Id,
+      dataForDatabase.CustomerID,
+      dataForDatabase.legalId,
+      dataForDatabase.Name,
+      dataForDatabase.loanAmount,
+      dataForDatabase.Disbursmentdate,
+      dataForDatabase.Matudate,
+    ];
+  
+    db.query(insertQuery, values, (err, result) => {
+      if (err) {
+        console.error('Database query error: ' + err.stack);
+        res.status(500).send('Error adding data to the database');
+      } else {
+        res.status(200).send('Data added to the database successfully');
+      }
+    });
+  });
+
+  app.post('/parse', upload.single('file'), async (req, res) => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(req.file.buffer);
+  
+      const sheet = workbook.getWorksheet(1);
+  
+      // Convert sheet data to JSON
+      const data = [];
+      sheet.eachRow((row, rowNumber) => {
+        if (rowNumber !== 1) {
+          const rowData = {};
+          row.eachCell((cell, colNumber) => {
+            rowData[`Column${colNumber}`] = cell.value;
+          });
+          data.push(rowData);
+        }
+      });
+  
+      // Respond with the data
+      res.status(200).json({ data });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'An error occurred while parsing the Excel file. Please try again.' });
+    }
+  });
+
+  app.put('/update/:Id', (req, res) => {
+    console.log(req.body);
+    const { name } = req.body; // Destructure name from req.body
+    const IdToUpdate = req.params.Id;
+  
+    const query = 'UPDATE loanslist SET instanceId = ? WHERE Id = ? '; // Use name instead of newstate
+    db.query(query, [name, IdToUpdate], (err, result) => {
+      if (err) {
+        console.error('Database query error' + err.stack);
+        res.status(500).send('Error updating data');
+      } else {
+        res.status(200).send('Data updated successfully');
+      }
+    });
+  });
+  
 
 app.listen(port, ()=> {
   console.log(`iko on ${port}`)
