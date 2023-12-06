@@ -74,28 +74,7 @@ function Lookup() {
     }
   };
 
-  useEffect(()=>{
-    const updatestate = async () => {
-      try{
-        if (selectedItem && selectedItem.Id){
-        const response  = await fetch(`/take/${selectedItem.Id}`,{
-          method:'PUT',
-        });
-        if (response.ok){
-          console.log('iko fiti');
-        
-        }else{
-          console.log('acha ufala buda');
-        }}
-      }
-      catch (err){
-        console.log('rada mase' + err);
-      }
-    };  if (selectedItem ){
-    updatestate(); 
-     
-  }
-  }, [selectedItem]);
+
 
 
   const handleCloseModal = () => {
@@ -114,13 +93,9 @@ function Lookup() {
         <td>{result.state}</td>
         <td>{result.availability}</td>
         <td>
-     
           <Button variant='primary' onClick={() => handleTakeOut(result)}>
             Take out <CiServer />
           </Button>
-     
-
-          
         </td>
       </tr>
     ));
@@ -224,7 +199,7 @@ function Lookup() {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>
-              Close
+             <CiShoppingTag/> Close
             </Button>
           </Modal.Footer>
         </Modal>

@@ -149,6 +149,7 @@ function Lookup() {
               name="search"
               placeholder="..."
                 onChange={(e) => setSearchTerm(e.target.value)}
+                
             />
             <br />
             <Button variant="primary" type="submit">

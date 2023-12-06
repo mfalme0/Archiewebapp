@@ -43,13 +43,7 @@
   /* LargeItemInput.css */
 
 /* Center the main container */
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh; /* Set height to 100% of the viewport height for vertical centering */
-}
+
 
 /* Style the input and button sections */
 div > div {

@@ -214,11 +214,11 @@ app.get('/everything', (req, res) => {
 
   app.put('/update/:Id', (req, res) => {
     console.log(req.body);
-    const { name } = req.body; // Destructure name from req.body
+    const { instanceId } = req.body; // Destructure name from req.body
     const IdToUpdate = req.params.Id;
   
     const query = 'UPDATE loanslist SET instanceId = ? WHERE Id = ? '; // Use name instead of newstate
-    db.query(query, [name, IdToUpdate], (err, result) => {
+    db.query(query, [instanceId, IdToUpdate], (err, result) => {
       if (err) {
         console.error('Database query error' + err.stack);
         res.status(500).send('Error updating data');
