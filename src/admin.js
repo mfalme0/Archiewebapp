@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Table, Container, Button, Row, Modal} from "react-bootstrap"
 import { IoMdReturnLeft } from "react-icons/io";
+import ExcelRenderComponent from "./upload";
 
 function Admin(){
     const [showModal, setShowModal]= useState(false)
@@ -8,7 +9,7 @@ function Admin(){
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        fetch('/everything')
+        fetch('/people')
         .then((res) => res.json())
         .then((data) => setData(data))
         .catch((err) => console.error('kunashida manze', err));
@@ -22,11 +23,11 @@ function Admin(){
                 <td>{user.datep}</td>
                 <td>{user.document}</td>
                 <td>
-                    {user.state ==='true'?(
+                    {user.state === 'unreturned'?(
                     <Button variant="primary" onClick={() => handleReturning(user)}>
                 <IoMdReturnLeft /> return
                 </Button>):(
-                    <Button variant="success">
+                    <Button variant="success" disabled>
                         returned
                     </Button>
                 )}
@@ -41,56 +42,64 @@ function Admin(){
         
     };
 
-    useEffect(() => {
-        const updateState = async () => {
-            try{
-                if (selectedItem && selectedItem.document){
-                    const response = await fetch(`/return/${selectedItem.document}`, {
-                        method: 'PUT'});
-                    if (response.ok){
-                        
-                        console.log('mambo shwari')
-                        setShowModal(false);
-                        
-                    }
-                    else{
-                        console.log('kuna problem')
-                    }
-                }}catch (err){
-                    console.log('acha ufala', + err);
-                }
-            }; if (selectedItem){
-                updateState();
-            }
-        }, [selectedItem]);
+    const handleApprove = async () => {
+        try {
+          // First fetch request
+          const unres = await fetch('/tingua', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              Id: selectedItem.document, // Assuming 'document' contains the plates
+            }),
+          });
+    
+          if (!unres.ok) {
+            console.error("Error marking car as rejected in '/makeunavailable'");
+            // Handle the error condition for '/makeunavailable'
+            return;
+          }
+    
+          // Extract necessary data from the response
+       
+          
+    
+          // Second fetch request to '/samosa'
+          const samosaResponse = await fetch('/samosa', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              document: selectedItem.document,
+              name: selectedItem.name,
+              datep: selectedItem.datep,
+              state: selectedItem.state,
+              email: selectedItem.email,
+              phone: selectedItem.phone
+            }),
+          });
+    
+          if (!samosaResponse.ok) {
+            console.error("Error marking car as rejected in '/samosa'");
+            // Handle the error condition for '/samosa'
+            return;
+          }
+    
+          // Now, use the extracted data to send an email
 
-        useEffect(() => {
-            const updateState1 = async () => {
-              try {
-                if (selectedItem && selectedItem.name, selectedItem.datep, selectedItem.document) {
-                   
-                  const response = await fetch(`/rudisha/${selectedItem.name}/${selectedItem.datep}/${selectedItem.document}`, {
-                    method: 'PUT',
-                  });
-          
-                  if (response.ok) {
-                  
-                    
-                    console.log('Mambo shwari');
-                    setShowModal(false);
-                  } else {
-                    console.log('Kuna problem');
-                  }
-                }
-              } catch (err) {
-                console.log('Acha ufala', err);
-              }
-            };
-          
-            if (selectedItem ) {
-              updateState1();
-            }
-          }, [selectedItem]);
+    
+          console.log('Car marked as rejected');
+          alert('the trip has been approved');
+          setShowModal(false);
+          // You may want to update the state or perform other actions upon success
+        } catch (error) {
+          console.error('Error marking car as rejected:', error);
+          // Handle the error condition
+        }
+      };
+
           
 
     const handleCloseModal = () =>{
@@ -100,7 +109,7 @@ function Admin(){
 
 
     return(
-        <Container>
+        <Container>  <ExcelRenderComponent/>
             <h1> Taken Documents</h1>
             <Table variant="dark">
                 <thead>
@@ -128,10 +137,10 @@ function Admin(){
                                 <ul>
                                     <li>Loan Id :{selectedItem.document} </li>
                                     <li>take by :{selectedItem.name} </li>
-                                    <li>on date :{selectedItem.datep}</li>
+                                    <li>on datep :{selectedItem.datep}</li>
                                 </ul>
                             </Row>
-                            <Button variant='primary' type="submit">
+                            <Button variant='primary' onClick={handleApprove}>
                             <IoMdReturnLeft /> Yes
                             </Button>
                         </div>
@@ -141,6 +150,7 @@ function Admin(){
                         close
                 </Button>
             </Modal>
+          
         </Container>
     )
 }

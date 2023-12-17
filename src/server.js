@@ -227,6 +227,27 @@ app.get('/everything', (req, res) => {
       }
     });
   });
+
+  app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+  
+    // Execute a simple SQL query to check the user's credentials
+    const sql = 'SELECT * FROM password WHERE username = ? AND password = ?';
+    connection.query(sql, [username, password], (err, results) => {
+      if (err) {
+        console.error('Error during login:', err);
+        res.status(500).json({ error: 'An error occurred during login' });
+      } else {
+        if (results.length > 0) {
+          // Authentication successful
+          res.status(200).json({ message: 'Login successful' });
+        } else {
+          // Authentication failed
+          res.status(401).json({ error: 'Invalid credentials' });
+        }
+      }
+    });
+  });
   
 
 app.listen(port, ()=> {

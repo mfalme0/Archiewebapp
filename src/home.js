@@ -49,14 +49,13 @@ function Lookup() {
       console.log("Error: " + error);
     }
   };
-
   const handleSearch = async (event) => {
     event.preventDefault();
-
+  
     try {
-      const response = await fetch(`/info?search=${searchTerm}`);
+      const response = await fetch(`/info`);
       const data = await response.json();
-
+  
       setSearchResults(data);
     } catch (error) {
       console.error('Error fetching data:', error);

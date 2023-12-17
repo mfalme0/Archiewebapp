@@ -8,7 +8,7 @@ function Lookup() {
   const [searchResults, setSearchResults] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const returnconstant=true;
+  const returnconstant= 'unreturned';
 
   
   const[formdata, setformdata] = useState({
@@ -25,50 +25,88 @@ function Lookup() {
     const {name, value } =e.target;
     setformdata({...formdata, [name]:value});
   }
-  const handlesubmit = async (e) =>{
+  const handlesubmit = async (e) => {
     e.preventDefault();
-    
-    try{
-        const response = await fetch("/takeout",{
-            method :"POST",
-            headers:{
-                "Content-Type":"application/json",
-            },
-            body: JSON.stringify({
-                name: formdata.name,
-                email: formdata.email,
-                phone: formdata.phone,
-                datep: formdata.datep,
-                document: formdata.document,
-                state: formdata.state,
-            }),
-        });
-        if (response.ok){
-            console.log("ime ingia");
-
-            setShowModal(false);
-        }
-        else{
-            console.log("buda imeinanama")
-        }
+  
+    // Validate form data (add your own validation logic)
+    if (!formdata.name || !formdata.email || !formdata.phone) {
+      console.error("Please fill in all required fields");
+      return;
     }
-    catch (error){
-        console.log("rada msee" + error);
+  
+    try {
+      // Make a POST request to /shikandai endpoint
+      const bookingData = {
+   name: formdata.name,
+   email: formdata.email,
+   phone: formdata.phone,
+   document: formdata.document,
+   datep : formdata.datep,
+   state: formdata.state,
+      };
+  
+      const shikandaiResponse = await fetch("/takeout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+     
+      // Handle the response from /shikandai endpoint
+      if (!shikandaiResponse.ok) {
+        console.error("Booking failed");
+        return;
+      }
+      
+      // Make a POST request to /nare endpoint
+      const nareResponse = await fetch("/ital", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Id: formdata.document,
+        }),
+      });
+  
+      // Handle the response from /nare endpoint
+      if (!nareResponse.ok) {
+        console.error("Error marking car as unavailable");
+        // You may want to handle this error condition accordingly
+      }
+  
+      // Handle the success condition
+      console.log("Booking successful");
+  
+      // Send email
+     
+  
+      setShowModal(false);
+
+      alert('Please wait for management to get back to you');
+      console.log('data inserted');
+  
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
   const handleSearch = async (event) => {
     event.preventDefault();
-
+  
     try {
+      // Assuming you have a state variable searchTerm that holds the search term
       const response = await fetch(`/info?search=${searchTerm}`);
       const data = await response.json();
-
+  
+      // Assuming you have a state-setting function setSearchResults
       setSearchResults(data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+  
 
   const handleTakeOut = (item) => {
     setShowModal(true);
@@ -90,6 +128,8 @@ function Lookup() {
         });
         if (response.ok){
           console.log('iko fiti');
+          setShowModal(false)
+          alert('Please wait for managament to get back to you ')
         
         }else{
           console.log('acha ufala buda');
@@ -113,15 +153,16 @@ function Lookup() {
   const renderTableRows = () => {
     return searchResults.map((result) => (
       <tr key={result.instanceid}>
-        <td>{result.instanceid}</td>
+        <td>{result.Archive_Number}</td>
         <td>{result.Id}</td>
-        <td>{result.CustomerId}</td>
-        <td>{result.Name}</td>
-        <td>{result.loanAmount}</td>
-        <td>{result.state}</td>
-        <td>{result.availability}</td>
+        <td>{result.Customer_id}</td>
+        <td>{result.Customer_Name}</td>
+        <td>{result.Branch}</td>
+        <td>{result.Loan_Amount}</td>
+        <td>{result.Maturity_Date}</td>
+        <td>{result.Disbursement_Date}</td>
         <td>
-            {result.availability === 'available' ?(
+            {result.Availability === 'available' ?(
           <Button variant='primary' onClick={() => handleTakeOut(result)}>
             Take out <CiServer />
           </Button>
@@ -167,9 +208,10 @@ function Lookup() {
                   <th>Id</th>
                   <th>CustomerId</th>
                   <th>Name</th>
+                  <th>Branch</th>
                   <th>Loan Amount</th>
-                  <th>State</th>
-                  <th>Availability</th>
+                  <th>Maturity Date</th>
+                  <th>Disbursement Date</th>
                   <th>Request</th>
                 </tr>
               </thead>

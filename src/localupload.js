@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { OutTable, ExcelRenderer } from 'react-excel-renderer';
-import axios from 'axios';
-
+import axios from 'axios';  // Import axios for making HTTP requests
 
 class ExcelRenderComponent extends Component {
   constructor(props) {
@@ -30,16 +29,17 @@ class ExcelRenderComponent extends Component {
     });
   };
 
+  // Function to send data to the server
   sendDataToServer = (data) => {
-    axios.post('/manangos', { data: data })
+    axios.post('/saveData', { data })
       .then(response => {
         console.log(response.data);
-        alert('Data inserted successfully');
-        window.location.reload()
+        alert('successful')
       })
       .catch(error => {
         console.error("Error sending data to server:", error);
-        alert('Error inserting data');
+        alert('error uploading', error)
+
       });
   };
 
