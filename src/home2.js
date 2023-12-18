@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Table, Button, Modal } from 'react-bootstrap';
 import { CiSearch, CiServer } from 'react-icons/ci';
 import { CiShoppingTag } from 'react-icons/ci';
+import emailjs from '@emailjs/browser'
 
 function Lookup() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,6 +10,7 @@ function Lookup() {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const returnconstant= 'unreturned';
+  const form = useRef();
 
   
   const[formdata, setformdata] = useState({
@@ -58,6 +60,8 @@ function Lookup() {
         console.error("Booking failed");
         return;
       }
+  
+
       
       // Make a POST request to /nare endpoint
       const nareResponse = await fetch("/ital", {
@@ -78,14 +82,16 @@ function Lookup() {
   
       // Handle the success condition
       console.log("Booking successful");
+      
   
       // Send email
      
   
       setShowModal(false);
-
+      sendEmail(e);
       alert('Please wait for management to get back to you');
       console.log('data inserted');
+  
   
     } catch (error) {
       console.error("Error:", error);
@@ -149,6 +155,19 @@ function Lookup() {
     setShowModal(false);
     setSelectedItem(null);
   };
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+
+    emailjs.sendForm('service_fwngfby', 'template_qdp6pfd', form.current,'C0TDh3CKUn0GtenXY' )
+      .then((result) => {
+          console.log(result.text);
+      }, (error) => {
+          console.log(error.text);
+      });
+  };
+  
+  
 
   const renderTableRows = () => {
     return searchResults.map((result) => (
@@ -242,7 +261,7 @@ function Lookup() {
                 
                 </Row>
                 <Row>
-                <form onSubmit={handlesubmit} >
+                <form onSubmit={handlesubmit} ref={form} >
                 <p> please enter the following information and management with get back to you</p>
 
                 <label>Loan ID</label>
