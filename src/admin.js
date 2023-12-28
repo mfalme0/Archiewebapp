@@ -91,8 +91,9 @@ function Admin(){
 
     
           console.log('Car marked as rejected');
-          alert('the trip has been approved');
+          alert('The document has been returned');
           setShowModal(false);
+          window.location.reload();
           // You may want to update the state or perform other actions upon success
         } catch (error) {
           console.error('Error marking car as rejected:', error);
