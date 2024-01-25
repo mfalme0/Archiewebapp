@@ -279,6 +279,24 @@ app.post('/tingua', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Import necessary Firebase modules
+const { getAuth, signInWithEmailAndPassword } = require('firebase/auth');
+
+// Route to handle authentication
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const auth = getAuth(firebaseApp);
+    await signInWithEmailAndPassword(auth, email, password);
+
+    res.status(200).send('Authentication successful');
+  } catch (error) {
+    console.error('Authentication error:', error);
+    res.status(401).send('Authentication failed');
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

@@ -3,6 +3,7 @@ import { Container, Row, Table, Button, Modal } from 'react-bootstrap';
 import { CiSearch, CiServer } from 'react-icons/ci';
 import { CiShoppingTag } from 'react-icons/ci';
 import emailjs from '@emailjs/browser'
+import { CiSettings } from "react-icons/ci";
 
 function Lookup() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -159,7 +160,7 @@ function Lookup() {
   const sendEmail = (e) => {
     e.preventDefault();
 
-    emailjs.sendForm('service_fwngfby', 'template_qdp6pfd', form.current,'C0TDh3CKUn0GtenXY' )
+    emailjs.sendForm('service_gk6ge6a', 'template_qdp6pfd', form.current,'C0TDh3CKUn0GtenXY' )
       .then((result) => {
           console.log(result.text);
       }, (error) => {
@@ -214,6 +215,9 @@ function Lookup() {
             <br />
             <Button variant="primary" type="submit">
               <CiSearch /> Search
+            </Button>
+            <Button variant='outline_primary'href='admin'>
+              <CiSettings/> Admin
             </Button>
             <span></span>
           </form>
